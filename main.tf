@@ -1,0 +1,58 @@
+provider "kubernetes" {
+  load_config_file       = false
+  cluster_ca_certificate = base64decode(var.kubernetes_cluster_cert_data)
+  host                   = var.kubernetes_cluster_endpoint
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "yc"
+    args = [
+      "k8s",
+      "create-token"
+    ]
+  }
+}
+
+provider "helm" {
+  kubernetes {
+    load_config_file       = false
+    cluster_ca_certificate = base64decode(var.kubernetes_cluster_cert_data)
+    host                   = yandex_kubernetes_cluster.ms-up-running.master[0].external_v4_endpoint
+    exec {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      command     = "yc"
+      args = [
+        "k8s",
+        "create-token"
+      ]
+    }
+  }
+}
+
+resource "kubernetes_namespace" "argo-ns" {
+  metadata {
+    name = "argocd"
+  }
+}
+
+resource "helm_release" "argocd" {
+  name       = "msur"
+  chart      = "argo-cd"
+  repository = "https://argoproj.github.io/argo-helm"
+  namespace  = kubernetes_namespace.argo-ns.metadata[0].name
+  version    = "5.46.8" # Рекомендуется указывать версию
+
+  set {
+    name  = "server.service.type"
+    value = "LoadBalancer"
+  }
+
+  # Дополнительные настройки для Yandex Cloud
+  set {
+    name  = "controller.metrics.enabled"
+    value = "true"
+  }
+
+  depends_on = [
+    kubernetes_namespace.argo-ns,
+  ]
+}
