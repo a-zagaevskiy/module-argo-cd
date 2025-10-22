@@ -1,5 +1,4 @@
 provider "kubernetes" {
-  load_config_file       = false
   cluster_ca_certificate = base64decode(var.kubernetes_cluster_cert_data)
   host                   = var.kubernetes_cluster_endpoint
   exec {
@@ -14,9 +13,8 @@ provider "kubernetes" {
 
 provider "helm" {
   kubernetes {
-    load_config_file       = false
     cluster_ca_certificate = base64decode(var.kubernetes_cluster_cert_data)
-    host                   = yandex_kubernetes_cluster.ms-up-running.master[0].external_v4_endpoint
+    host                   = var.kubernetes_cluster_endpoint
     exec {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "yc"
@@ -53,6 +51,6 @@ resource "helm_release" "argocd" {
   }
 
   depends_on = [
-    kubernetes_namespace.argo-ns,
+    kubernetes_namespace.argo-ns
   ]
 }
