@@ -12,10 +12,10 @@ provider "kubernetes" {
 }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     cluster_ca_certificate = base64decode(var.kubernetes_cluster_cert_data)
     host                   = var.kubernetes_cluster_endpoint
-    exec {
+    exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "yc"
       args = [
@@ -39,16 +39,17 @@ resource "helm_release" "argocd" {
   namespace  = kubernetes_namespace.argo-ns.metadata[0].name
   version    = "5.46.8" # Рекомендуется указывать версию
 
-  set {
-    name  = "server.service.type"
-    value = "LoadBalancer"
-  }
-
-  # Дополнительные настройки для Yandex Cloud
-  set {
-    name  = "controller.metrics.enabled"
-    value = "true"
-  }
+  set = [
+    {
+      name  = "server.service.type"
+      value = "LoadBalancer"
+    },
+    # Дополнительные настройки для Yandex Cloud
+    {
+      name  = "controller.metrics.enabled"
+      value = "true"
+    }
+  ]
 
   depends_on = [
     kubernetes_namespace.argo-ns
