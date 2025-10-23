@@ -1,28 +1,32 @@
-provider "kubernetes" {
-  cluster_ca_certificate = var.kubernetes_cluster_cert_data
-  host                   = var.kubernetes_cluster_endpoint
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    command     = var.yc_exec
-    args = [
-      "k8s",
-      "create-token"
-    ]
+terraform {
+  required_providers {
+    yandex = {
+      source = "yandex-cloud/yandex"
+    }
+    kubernetes = {
+      source = "hashicorp/kubernetes"
+    }
   }
+  required_version = ">= 0.14.8"
+}
+
+provider "yandex" {
+  zone = var.yandex_zone
+}
+
+data "yandex_client_config" "client" {}
+
+provider "kubernetes" {
+  host                   = var.kubernetes_cluster_endpoint
+  cluster_ca_certificate = var.kubernetes_cluster_cert_data
+  token                  = data.yandex_client_config.client.iam_token
 }
 
 provider "helm" {
   kubernetes = {
-    cluster_ca_certificate = var.kubernetes_cluster_cert_data
     host                   = var.kubernetes_cluster_endpoint
-    exec = {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      command     = var.yc_exec
-      args = [
-        "k8s",
-        "create-token"
-      ]
-    }
+    cluster_ca_certificate = var.kubernetes_cluster_cert_data
+    token                  = data.yandex_client_config.client.iam_token
   }
 }
 

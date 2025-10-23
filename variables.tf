@@ -1,3 +1,7 @@
+variable "yandex_zone" {
+  type = string
+}
+
 variable "kubernetes_cluster_id" {
   type = string
 }
@@ -15,9 +19,5 @@ variable "kubernetes_cluster_name" {
 }
 
 variable "kubernetes_nodegroup_id" {
-  type = string
-}
-
-variable "yc_exec" {
   type = string
 }
