@@ -17,3 +17,7 @@ variable "kubernetes_cluster_name" {
 variable "kubernetes_nodegroup_id" {
   type = string
 }
+
+variable "yc_exec" {
+  type = string
+}

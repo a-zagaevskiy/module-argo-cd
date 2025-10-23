@@ -3,7 +3,7 @@ provider "kubernetes" {
   host                   = var.kubernetes_cluster_endpoint
   exec {
     api_version = "client.authentication.k8s.io/v1beta1"
-    command     = "yc"
+    command     = var.yc_exec
     args = [
       "k8s",
       "create-token"
@@ -17,7 +17,7 @@ provider "helm" {
     host                   = var.kubernetes_cluster_endpoint
     exec = {
       api_version = "client.authentication.k8s.io/v1beta1"
-      command     = "yc"
+      command     = var.yc_exec
       args = [
         "k8s",
         "create-token"
