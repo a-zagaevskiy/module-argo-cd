@@ -34,6 +34,10 @@ resource "kubernetes_namespace" "argo-ns" {
   metadata {
     name = "argocd"
   }
+
+  depends_on = [
+    var.kubernetes_nodegroup_id
+  ]
 }
 
 resource "helm_release" "argocd" {
@@ -56,6 +60,7 @@ resource "helm_release" "argocd" {
   ]
 
   depends_on = [
-    kubernetes_namespace.argo-ns
+    kubernetes_namespace.argo-ns,
+    var.kubernetes_nodegroup_id
   ]
 }
